@@ -40,7 +40,7 @@ jobs:
         run: docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
     
       - name: Build image and push backend
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           # relative path to the place where source code with Dockerfile is located
           context: ./backend/simple-api-student-main
@@ -50,14 +50,14 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' }}
     
       - name: Build image and push database
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./
           tags:  ${{secrets.DOCKER_HUB_USERNAME}}/tp-devops-db:latest
           push: ${{ github.ref == 'refs/heads/main' }}
     
       - name: Build image and push httpd
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: ./HTTP/
           tags:  ${{secrets.DOCKER_HUB_USERNAME}}/tp-devops-http:latest

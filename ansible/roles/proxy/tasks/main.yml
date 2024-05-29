@@ -11,3 +11,4 @@
       - name: app-network
     ports:
       - "80:80"
+    pull: yes #ensure to pull the latest image even if it's already downloaded

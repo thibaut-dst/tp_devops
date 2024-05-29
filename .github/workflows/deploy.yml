@@ -14,23 +14,23 @@ jobs:
     steps:
           
     - name: Checkout code
-          uses: actions/checkout@v4
+      uses: actions/checkout@v4
           
     - name: Set up SSH
-          uses: webfactory/ssh-agent@v0.5.3
-          with:
-            ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Install Ansible
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y ansible
+      run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
 
     - name: Disable host key checking
-          run: echo "ANSIBLE_HOST_KEY_CHECKING=False" >> $GITHUB_ENV
+      run: echo "ANSIBLE_HOST_KEY_CHECKING=False" >> $GITHUB_ENV
           
     - name: Run deployment playbook
-          run: |
-            ansible-playbook -i ansible/Inventory/setup.yml ansible/playbook.yml
-          env:
-            ANSIBLE_HOST_KEY_CHECKING: False
+      run: |
+          ansible-playbook -i ansible/Inventory/setup.yml ansible/playbook.yml
+      env:
+          ANSIBLE_HOST_KEY_CHECKING: False

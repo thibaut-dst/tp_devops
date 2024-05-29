@@ -3,11 +3,11 @@
 
 - name: Launch Backend Application
   docker_container:
-    name: simple_api_student
+    name: simple_api_student_instance2
     image: thibautdst/tp-devops-backend-simple-api-student:latest
     state: started
     restart_policy: always
     networks:
       - name: app-network
     ports:
-      - "8081:8080"
+      - "8082:8080"

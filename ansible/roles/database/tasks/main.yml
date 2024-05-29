@@ -1,0 +1,14 @@
+---
+# tasks file for roles/databases
+
+- name: Launch PostgreSQL Database
+  docker_container:
+    name: myPostgres
+    image: thibautdst/tp-devops-db:latest
+    state: started
+    restart_policy: always
+    networks:
+      - name: app-network
+    
+    ports:
+      - "5455:5432"

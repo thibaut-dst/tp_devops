@@ -1,0 +1,13 @@
+---
+# tasks file for roles/proxy
+
+- name: Launch Proxy/Front Application
+  docker_container:
+    name: myHTTP
+    image: thibautdst/tp-devops-http:latest
+    state: started
+    restart_policy: always
+    networks:
+      - name: app-network
+    ports:
+      - "80:80"

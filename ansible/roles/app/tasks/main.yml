@@ -1,0 +1,13 @@
+---
+# tasks file for roles/app
+
+- name: Launch Backend Application
+  docker_container:
+    name: simple_api_student
+    image: thibautdst/tp-devops-backend-simple-api-student:latest
+    state: started
+    restart_policy: always
+    networks:
+      - name: app-network
+    ports:
+      - "8080:8080"

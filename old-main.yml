@@ -1,3 +1,6 @@
+# OLD file version for the CI/CD, the latest one are in .github/workflows/
+
+
 name: CI devops 2024
 on:
   #to begin you want to launch this job in main and develop

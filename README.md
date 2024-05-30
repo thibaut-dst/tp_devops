@@ -233,7 +233,99 @@ Done. The config can be checked in the /workflows/test-backend.yml and in /workf
 
 Done. The config can be checked in /workflows/deploy.yml
 
-## TP extras
+## TP extras: Load balancer & grafana
 
-I tried to setup the load balancer with such config: 
+There are not visible because I reverted back to a working commit, to ensure that my server is correctly running and the proxy is accessible, but here are the configs I tried:
 
+### Load balancer
+
+I tried to set it up with such config: 
+
+httpd.cong:
+```
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+LoadModule proxy_balancer_module modules/mod_proxy_balancer.so
+LoadModule lbmethod_byrequests_module modules/mod_lbmethod_byrequests.so
+LoadModule slotmem_shm_module modules/mod_slotmem_shm.so
+
+<VirtualHost *:80>
+  ServerName localhost
+  ProxyPreserveHost On
+  <Proxy balancer://mycluster>
+      BalancerMember http://simple_api_student:8081
+      BalancerMember http://simple_api_student_instance2:8082
+      ProxySet lbmethod=byrequests
+  </Proxy>
+
+  # Set up proxy pass and reverse proxy
+  ProxyPass / balancer://mycluster/
+  ProxyPassReverse / balancer://mycluster/
+</VirtualHost>
+```
+
+roles/backend/tasks/main.yml:
+```
+---
+# tasks file for roles/app
+
+- name: Launch Backend Application
+  docker_container:
+    name: simple_api_student
+    image: thibautdst/tp-devops-backend-simple-api-student:latest
+    state: started
+    restart_policy: always
+    networks:
+      - name: app-network
+    ports:
+      - "8081:8080"
+---
+# tasks file for roles/app2
+
+- name: Launch Backend Application instance 2
+  docker_container:
+    name: simple_api_student_instance2
+    image: thibautdst/tp-devops-backend-simple-api-student:latest
+    state: started
+    restart_policy: always
+    networks:
+      - name: app-network
+    ports:
+      - "8082:8080"
+```
+
+### Grafana
+
+my config in roles/grafana/tasks/main.yml:
+```
+---
+# tasks file for roles/grafana
+
+- name: Install dependencies
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - initscripts
+    - fontconfig
+
+- name: Add Grafana repository
+  yum_repository:
+    name: grafana
+    description: Grafana Repository
+    baseurl: https://packages.grafana.com/oss/rpm
+    gpgcheck: yes
+    gpgkey: https://packages.grafana.com/gpg.key
+    enabled: yes
+
+- name: Install Grafana
+  yum:
+    name: grafana
+    state: present
+
+- name: Start and enable Grafana service
+  service:
+    name: grafana-server
+    state: started
+    enabled: yes
+```

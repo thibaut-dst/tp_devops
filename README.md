@@ -133,16 +133,107 @@ Done. The config can be checked in the /workflows/test-backend.yml and in /workf
 
 ## TP3
 
-
 ### 3-1 Document your inventory and base commands
 
+- Ask Ansible to install Apache into your instance to make it a webserver. The --become flag tells Ansible to perform the command as a super user:
+  ```
+  ansible -i ansible/Inventory/setup.yml all -m yum -a "name=httpd state=present" --private-key=~/.ssh/devops_mde_takima/id_rsa -u centos --become
+  ```
+- create an html page for our website:
+  ```
+  ansible -i ansible/Inventory/setup.yml all -m shell -a 'echo "<html><h1>Hello World</h1></html>" >> /var/www/html/index.html' --private-key=~/.ssh/devops_mde_takima/id_rsa -u centos --become
+  ```
+- start Apache service
+  ```
+  ansible -i ansible/Inventory/setup.yml all -m service -a "name=httpd state=started" --private-key=~/.ssh/devops_mde_takima/id_rsa -u centos --become
+  ```
+- displays OS distribution information for all hosts listedansible/Inventory/setup.yml
+  ```
+  ansible all -i ansible/Inventory/setup.yml -m setup -a "filter=ansible_distribution*"
+  ```
+  - `ansible`: Runs Ansible.
+  - `all`: Targets all hosts in the inventory.
+  - `-i ansible/Inventory/setup.yml`: Specifies the inventory file to use.
+  - `-m setup`: Uses the `setup` module to gather facts.
+  - `a "filter=ansible_distribution*"`: Filters facts to include only those related to the OS distribution
+- Removes the httpd package from all hosts listed in the ansible/Inventory/setup.yml inventory file
+  ```
+  ansible all -i ansible/Inventory/setup.yml -m yum -a "name=httpd state=absent" --become
+  ```
+  - `ansible`: Initiates Ansible.
+  - `all`: Targets all hosts in the specified inventory file.
+  - `i ansible/Inventory/setup.yml`: Specifies the inventory file.
+  - `m yum`: Uses the `yum` module to manage packages.
+  - `a "name=httpd state=absent"`: Specifies the action to take: remove `httpd` package
+  - `-become`: Assumes superuser privileges to execute the command.
+
+  
 ### 3-2 Document your playbook
+
+- `hosts`: Specifies the group of hosts to which the playbook will be applied. In this case, `all` means that the playbook will run on all hosts specified in the inventory file.
+- `gather_facts`: Indicates whether Ansible should gather facts about the hosts before executing tasks. Setting it to `false` disables fact gathering.
+- `become`: Specifies whether to escalate privileges before executing tasks. Setting it to `true` allows Ansible to become a superuser (usually `root`) on the target hosts.
+- `roles`: Specifies a list of roles to be applied to the hosts. Roles are reusable collections of tasks, handlers, and other files organized in a structured directory format. In this playbook, the `docker` role will be applied to all hosts.
 
 ### 3-3 Document your docker_container tasks configuration.
 
-### Bonus TP3
+```
+# tasks file for roles/app
 
-continous deployment 
+- name: Launch Backend Application
+  docker_container:
+    name: simple_api_student
+    image: thibautdst/tp-devops-backend-simple-api-student:latest
+    state: started
+    restart_policy: always
+    networks:
+      - name: app-network
+    ports:
+      - "8080:8080"
+---
+# tasks file for roles/proxy
+
+- name: Launch Proxy/Front Application
+  docker_container:
+    name: myHTTP
+    image: thibautdst/tp-devops-http:latest
+    state: started
+    restart_policy: always
+    networks:
+      - name: app-network
+    ports:
+      - "80:80"
+    pull: yes #ensure to pull the latest image even if it's already downloaded
+---
+# tasks file for roles/databases
+
+- name: Launch PostgreSQL Database
+  docker_container:
+    name: myPostgres
+    image: thibautdst/tp-devops-db:latest
+    state: started
+    restart_policy: always
+    networks:
+      - name: app-network
+    ports:
+      - "5432:5432"
+```
+
+**Configuration Overview**
+- Name: Specifies the name of the Docker container.
+- Image: Specifies the Docker image to be used for the container.
+- State: `started`: Ensures that the container is running.
+- Restart Policy: `always`: Specifies that the container should always restart if it stops.
+- Networks: `app-network`: Attaches the container to the `app-network` Docker network.
+- Ports Mapped: [left:right] : Maps port [left] on the host to port [right] in the container.
+- **Pull Image**: `yes`: Pull policy: Forces Docker to pull the latest image even if it's already downloaded.
+
+
+### Bonus TP3: Continous deployment 
+
+Done. The config can be checked in /workflows/deploy.yml
 
 ## TP extras
+
+I tried to setup the load balancer with such config: 
 

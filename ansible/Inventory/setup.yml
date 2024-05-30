@@ -4,10 +4,4 @@ all:
     ansible_ssh_private_key_file: ~/.ssh/devops_mde_takima/id_rsa
   children:
     prod:
-      thibaut.desauty.takima.cloud:
-          backend_instance1:  # Define the first instance of your backend application
-            ansible_host: 10.0.1.81  # Use the IP address or hostname of your server
-            backend_port: 8081  # Define the port for the first backend instance
-          backend_instance2:  # Define the second instance of your backend application
-            ansible_host: 10.0.1.81  # Use the same IP address or hostname of your server
-            backend_port: 8082  # Define a different port for the second backend instance
+      hosts: thibaut.desauty.takima.cloud

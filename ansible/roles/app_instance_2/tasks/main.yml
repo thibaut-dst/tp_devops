@@ -1,7 +1,7 @@
 ---
-# tasks file for roles/app
+# tasks file for roles/app2
 
-- name: Launch Backend Application
+- name: Launch Backend Application instance 2
   docker_container:
     name: simple_api_student_instance2
     image: thibautdst/tp-devops-backend-simple-api-student:latest

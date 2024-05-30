@@ -12,8 +12,6 @@
     - network
     - database
     - app
+    - app_instance_2
     - proxy
     - grafana
-
- 
-

@@ -1,29 +1,41 @@
 version: '3.7'
 
 services:
+      
     backend:
         build:
-        #TODO
+            dockerfile: Dockerfile
+            context: ./backend/simple-api-student-main/
+        container_name: simple_api_student
         networks:
-        #TODO
+            - app-network
+        ports:
+            - "8091:8080"
         depends_on:
-        #TODO
+            - database
 
     database:
         build:
-        #TODO
+            dockerfile: Dockerfile
+            context: ./
+        container_name: myPostgres
+        ports:
+            - "5455:5432"
         networks:
-        #TODO
+            - app-network
 
     httpd:
         build:
-        #TODO
+            dockerfile: Dockerfile
+            context: ./HTTP/
         ports:
-        #TODO
+            - "8085:80"
         networks:
-        #TODO
+            - app-network
         depends_on:
-        #TODO
+            - backend
+
 
 networks:
-    #TODO ?
+    app-network:
+    
